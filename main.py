@@ -126,7 +126,7 @@ def match_rt_imdb_ftv():
     merge = merge.merge(ftv, left_on=["primaryTitle","startYear"], right_on=["title","year"], how="inner")
     
     # Calculate the average rating with 2 decimal places
-    merge["averageRating"] = round((merge["averageRating"].astype("float")  + (merge["audience_rating"] / 10) + merge["avg_vote"].astype("float")) / 3, 2)
+    merge["averageRating"] = round(( (merge["averageRating"].astype("float")*merge["numVotes"])  + ((merge["audience_rating"] / 10) * merge["audience_count"].astype("Int64")) + (merge["avg_vote"].astype("float") * merge["total_votes"].astype("Int64")) ) / ( (merge["numVotes"] + merge["audience_count"].astype("Int64") + merge["total_votes"].astype("Int64")) ), 2)
     
     merge["numVotes"] = merge["numVotes"] + merge["audience_count"].astype("Int64") + merge["total_votes"].astype("Int64")
     
