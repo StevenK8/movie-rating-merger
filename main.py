@@ -87,7 +87,7 @@ def parse_rotten_tomatoes():
 
 def parse_filmTv():
     # Open the files
-    ftv = pd.read_csv('data/filmtv/filmtv.csv', sep=',', header=0, dtype={'filmtv_link' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
+    ftv = pd.read_csv('data/filmtv/filmtv_movies.csv', sep=',', header=0, dtype={'filmtv_link' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
     
     # write the data to a tsv file
     ftv.to_csv('data/filmtv/filmtv.tsv', sep='\t', index=False)
@@ -174,7 +174,7 @@ def filmTv(force_download, force_merge):
         os.makedirs("data/filmtv")
         
     # Download and unzip the imdb data if force_download is True in the config.
-    if (not os.path.exists("data/filmtv/filmtv.csv") or force_download):
+    if (not os.path.exists("data/filmtv/filmtv_movies.csv") or force_download):
         print("Downloading and unzipping FilmTV data...")
         download_and_unzip_filmTv()
     
