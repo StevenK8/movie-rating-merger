@@ -119,18 +119,21 @@ def parse_imdb():
 def match_rt_imdb_ftv():
     imdb = pd.read_csv('data/imdb/imdb.tsv', sep='\t', header=0, dtype={'tconst': str, 'primaryTitle': str, 'startYear': str, 'runtimeMinutes': str, 'averageRating': float, 'numVotes': int, 'genres': str})
     rt = pd.read_csv('data/rotten_tomatoes/rotten_tomatoes.tsv', sep='\t', header=0, dtype={'rotten_tomatoes_link' : str, 'movie_title' : str, 'audience_rating' : float, 'audience_count' : float, 'original_release_date' : str})
-    ftv = pd.read_csv('data/filmtv/filmtv.tsv', sep='\t', header=0, dtype={'filmtv_id' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
-
+    ftv = pd.read_csv('data/filmtv/filmtv.tsv', sep='\t', header=0, dtype={'filmtv_id' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float, "year" : str})
+    
     merge = imdb.merge(rt, left_on=["primaryTitle","startYear"], right_on=["movie_title","original_release_date"], how="inner")
     
-    ftv = 
-    merge["averageRating"] = (merge["averageRating"].astype("float")  + (merge["audience_rating"] / 10)) / 2
-    merge["numVotes"] = merge["numVotes"] + merge["audience_count"].astype("Int64") #+ merge["total_votes"].astype("Int64")
+    merge = merge.merge(ftv, left_on=["primaryTitle","startYear"], right_on=["title","year"], how="inner")
+    
+    # Calculate the average rating with 2 decimal places
+    merge["averageRating"] = round((merge["averageRating"].astype("float")  + (merge["audience_rating"] / 10) + merge["avg_vote"].astype("float")) / 3, 2)
+    
+    merge["numVotes"] = merge["numVotes"] + merge["audience_count"].astype("Int64") + merge["total_votes"].astype("Int64")
     
     # Sort the dataframe by rating
     merge = merge.sort_values(by=["averageRating"], ascending=False)
     
-    merge = merge[['primaryTitle', 'original_release_date', 'runtimeMinutes', 'averageRating', 'numVotes', 'tconst', 'rotten_tomatoes_link']]
+    merge = merge[['primaryTitle', 'original_release_date', 'directors','genres', 'runtimeMinutes', 'averageRating', 'numVotes', 'tconst', 'rotten_tomatoes_link', 'filmtv_id']]
     
     merge.to_csv('data/merge/imdb_rt_ftv.tsv', sep='\t', index=False)
 
