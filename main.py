@@ -1,3 +1,4 @@
+from datetime import datetime
 import urllib.request
 import gzip
 import os
@@ -68,10 +69,15 @@ def download_and_unzip_filmTv():
 
 def parse_rotten_tomatoes():
     # Open the files
-    rt = pd.read_csv('data/rotten_tomatoes/rotten_tomatoes_movies.csv', sep=',', header=0, dtype={'rotten_tomatoes_link' : str, 'movie_title' : str, 'audience_rating' : float, 'audience_count' : float})
+    rt = pd.read_csv('data/rotten_tomatoes/rotten_tomatoes_movies.csv', sep=',', header=0, dtype={'rotten_tomatoes_link' : str, 'movie_title' : str, 'audience_rating' : "Int64", 'audience_count' : "Int64", 'original_release_date' : str})
+    
+    rt = rt[['rotten_tomatoes_link', 'movie_title', 'audience_rating', 'audience_count', 'original_release_date']]
     
     # Remove lines where numVotes is less than 1000
     rt = rt[rt['audience_count'] >= 1000]
+    
+    # Change the release date format like "2019-07-31" to a uear like "2019"
+    rt['original_release_date'] = pd.DatetimeIndex(rt['original_release_date']).year.astype("Int64")
     
     # Sort the dataframe by rating
     rt = rt.sort_values(by=["audience_rating"], ascending=False)
@@ -86,6 +92,8 @@ def parse_filmTv():
     # write the data to a tsv file
     ftv.to_csv('data/filmtv/filmtv.tsv', sep='\t', index=False)
     
+
+
 # Matches the tconst from the title tsv with the tconst from the ratings tsv.
 def parse_imdb():
     # Open the files
@@ -97,6 +105,8 @@ def parse_imdb():
     # Remove lines where titleType is not "movie"
     imdb = imdb[imdb['titleType'] == 'movie']
     
+    imdb = imdb[['tconst', 'primaryTitle', 'startYear', 'runtimeMinutes', 'averageRating', 'numVotes', 'genres']]
+    
     # Remove lines where numVotes is less than 1000
     imdb = imdb[imdb['numVotes'] >= 1000]
     
@@ -107,10 +117,18 @@ def parse_imdb():
     imdb.to_csv('data/imdb/imdb.tsv', sep='\t', index=False)
 
 def match_rt_imdb():
-    imdb = pd.read_csv('data/imdb/imdb.tsv', sep='\t', header=0, dtype={'tconst': str, 'titleType': str, 'primaryTitle': str, 'originalTitle': str, 'isAdult': str, 'startYear': str, 'endYear': str, 'runtimeMinutes': str, 'genres': str, 'averageRating': float, 'numVotes': int})
-    rt = pd.read_csv('data/rotten_tomatoes/rotten_tomatoes.tsv', sep='\t', header=0, dtype={'rotten_tomatoes_link' : str, 'movie_title' : str, 'audience_rating' : float, 'audience_count' : float})
+    imdb = pd.read_csv('data/imdb/imdb.tsv', sep='\t', header=0, dtype={'tconst': str, 'primaryTitle': str, 'startYear': str, 'runtimeMinutes': str, 'averageRating': float, 'numVotes': int, 'genres': str})
+    rt = pd.read_csv('data/rotten_tomatoes/rotten_tomatoes.tsv', sep='\t', header=0, dtype={'rotten_tomatoes_link' : str, 'movie_title' : str, 'audience_rating' : float, 'audience_count' : float, 'original_release_date' : str})
     
-    merge = imdb.merge(rt, left_on="primaryTitle", right_on="movie_title", how="inner")
+    merge = imdb.merge(rt, left_on=["primaryTitle","startYear"], right_on=["movie_title","original_release_date"], how="inner")
+    
+    merge["averageRating"] = (merge["averageRating"].astype("float") + (merge["audience_rating"] / 10)) / 2
+    merge["numVotes"] = merge["numVotes"] + merge["audience_count"].astype("Int64")
+    
+    # Sort the dataframe by rating
+    merge = merge.sort_values(by=["averageRating"], ascending=False)
+    
+    merge = merge[['primaryTitle', 'original_release_date', 'runtimeMinutes', 'averageRating', 'numVotes', 'genres', 'tconst', 'rotten_tomatoes_link']]
     
     merge.to_csv('data/merge/imdb_rt.tsv', sep='\t', index=False)
 
@@ -165,7 +183,10 @@ def filmTv(force_download, force_merge):
         parse_filmTv()
         
 def merge(force_merge):
-    if (not os.path.exists("data/merge/merge.tsv") or force_merge):
+    if (not os.path.exists("data/merge")):
+        os.makedirs("data/merge")
+        
+    if (not os.path.exists("data/merge/imdb_rt.tsv") or force_merge):
         print("Merging files...")
         match_rt_imdb()
 
