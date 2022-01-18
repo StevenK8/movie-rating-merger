@@ -32,19 +32,19 @@ def unzip_gz(file_name):
             out_file.write(data)
             
 # Unzip a zip file.
-def unzip_zip(file_name):
+def unzip_zip(file_name,path):
     print("Unzipping file: " + file_name)
     # Open the file
     with zipfile.ZipFile(file_name, 'r') as zip_ref:
         # Extract the file
-        zip_ref.extractall('data/rotten_tomatoes')
+        zip_ref.extractall(path)
         
 # Unzip a file
-def unzip_file(file_name):
+def unzip_file(file_name, path):
     if(file_name.endswith(".gz")):
         unzip_gz(file_name)
     elif(file_name.endswith(".zip")):
-        unzip_zip(file_name)
+        unzip_zip(file_name, path)
             
 def download_and_unzip_imdb():
     # Download the file
@@ -58,13 +58,13 @@ def download_and_unzip_imdb():
 def download_and_unzip_rotten_tomatoes():
     download_file("https://drive.google.com/uc?id=1O7Xl3imQ_tWgdhkf6QBuUMMCMCET8bpj&export=download", "data/rotten_tomatoes/rotten_tomatoes_movies.zip")
 
-    unzip_file("data/rotten_tomatoes/rotten_tomatoes_movies.zip")
+    unzip_file("data/rotten_tomatoes/rotten_tomatoes_movies.zip", "data/rotten_tomatoes")
 
 # Download and unzip Film TV data
 def download_and_unzip_filmTv():
     download_file("https://drive.google.com/u/0/uc?id=1Tekj0y8v1AanxWkImyT4pbyXiDDzzgwS&export=download", "data/filmtv/filmtv.zip")
 
-    unzip_file("data/filmtv/filmtv.zip")
+    unzip_file("data/filmtv/filmtv.zip", "data/filmtv")
     
 
 def parse_rotten_tomatoes():
@@ -87,7 +87,7 @@ def parse_rotten_tomatoes():
 
 def parse_filmTv():
     # Open the files
-    ftv = pd.read_csv('data/filmtv/filmtv_movies.csv', sep=',', header=0, dtype={'filmtv_link' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
+    ftv = pd.read_csv('data/filmtv/filmtv_movies - ENG.csv', sep=',', header=0, dtype={'filmtv_id' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
     
     # write the data to a tsv file
     ftv.to_csv('data/filmtv/filmtv.tsv', sep='\t', index=False)
@@ -174,7 +174,7 @@ def filmTv(force_download, force_merge):
         os.makedirs("data/filmtv")
         
     # Download and unzip the imdb data if force_download is True in the config.
-    if (not os.path.exists("data/filmtv/filmtv_movies.csv") or force_download):
+    if (not os.path.exists("data/filmtv/filmtv_movies - ENG.csv") or force_download):
         print("Downloading and unzipping FilmTV data...")
         download_and_unzip_filmTv()
     
