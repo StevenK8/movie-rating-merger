@@ -123,7 +123,7 @@ def match_rt_imdb_ftv():
 
     merge = imdb.merge(rt, left_on=["primaryTitle","startYear"], right_on=["movie_title","original_release_date"], how="inner")
     
-
+    ftv = 
     merge["averageRating"] = (merge["averageRating"].astype("float")  + (merge["audience_rating"] / 10)) / 2
     merge["numVotes"] = merge["numVotes"] + merge["audience_count"].astype("Int64") #+ merge["total_votes"].astype("Int64")
     
