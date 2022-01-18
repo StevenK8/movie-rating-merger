@@ -58,6 +58,12 @@ def download_and_unzip_rotten_tomatoes():
     download_file("https://drive.google.com/uc?id=1O7Xl3imQ_tWgdhkf6QBuUMMCMCET8bpj&export=download", "data/rotten_tomatoes/rotten_tomatoes_movies.zip")
 
     unzip_file("data/rotten_tomatoes/rotten_tomatoes_movies.zip")
+
+# Download and unzip Film TV data
+def download_and_unzip_filmTv():
+    download_file("https://drive.google.com/u/0/uc?id=1Tekj0y8v1AanxWkImyT4pbyXiDDzzgwS&export=download", "data/filmtv/filmtv.zip")
+
+    unzip_file("data/filmtv/filmtv.zip")
     
 
 def parse_rotten_tomatoes():
@@ -72,6 +78,13 @@ def parse_rotten_tomatoes():
     
     # write the data to a tsv file
     rt.to_csv('data/rotten_tomatoes/rotten_tomatoes.tsv', sep='\t', index=False)
+
+def parse_filmTv():
+    # Open the files
+    ftv = pd.read_csv('data/filmtv/filmtv.csv', sep=',', header=0, dtype={'filmtv_link' : str, 'title' : str, 'director' : str, 'avg_vote' : float, 'critics_vote' : float, 'public_vote' : float})
+    
+    # write the data to a tsv file
+    ftv.to_csv('data/filmtv/filmtv.tsv', sep='\t', index=False)
     
 # Matches the tconst from the title tsv with the tconst from the ratings tsv.
 def parse_imdb():
@@ -109,6 +122,7 @@ def read_config():
     
     imdb(config['IMDB'].getboolean('force_download'), config['IMDB'].getboolean('force_merge'))
     rotten_tomatoes(config['ROTTEN_TOMATOES'].getboolean('force_download'), config['ROTTEN_TOMATOES'].getboolean('force_merge'))
+    filmTv(config['FILM_TV'].getboolean('force_download'), config['FILM_TV'].getboolean('force_merge'))
     merge(config['MERGE'].getboolean('force_merge'))
 
 def imdb(force_download, force_merge):
@@ -136,6 +150,19 @@ def rotten_tomatoes(force_download, force_merge):
     if (not os.path.exists("data/rotten_tomatoes/rotten_tomatoes.tsv") or force_merge):
         print("Parsing Rotten Tomatoes files...")
         parse_rotten_tomatoes()
+
+def filmTv(force_download, force_merge):
+    if (not os.path.exists("data/filmtv")):
+        os.makedirs("data/filmtv")
+        
+    # Download and unzip the imdb data if force_download is True in the config.
+    if (not os.path.exists("data/filmtv/filmtv.csv") or force_download):
+        print("Downloading and unzipping FilmTV data...")
+        download_and_unzip_filmTv()
+    
+    if (not os.path.exists("data/filmtv/filmtv.tsv") or force_merge):
+        print("Parsing FilmTV files...")
+        parse_filmTv()
         
 def merge(force_merge):
     if (not os.path.exists("data/merge/merge.tsv") or force_merge):
