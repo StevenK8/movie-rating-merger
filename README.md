@@ -8,3 +8,10 @@ Sources include:
 - FilmTV (https://www.kaggle.com/stefanoleone992/filmtv-movies-dataset)
 
 
+## Requirements
+
+```pip install -r requirements.txt```
+
+## Run code
+
+```python ./main.py```
