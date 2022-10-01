@@ -64,14 +64,9 @@ for i in range(len(matchingTitle)):
             director = res[j][1]
             publicVote = res[j][3]
             criticsVote = res[j][4]
-    #avgVote = (avgVoteImdb + avgVoteFilmtv) / 2
     resFinal.append([title,year,duration,avgVoteFilmtv,director,publicVote, criticsVote])
 
 print(len(resFinal))
-
-
-
-    
 
 
 
