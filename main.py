@@ -15,7 +15,7 @@ def download_file(url, file_name):
     else:
         raise ValueError from None
 
-    with urllib.request.urlopen(url) as response:
+    with urllib.request.urlopen(req) as response:
         # Read the response
         data = response.read()
         # Open the file
