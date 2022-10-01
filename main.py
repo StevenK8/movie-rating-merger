@@ -10,6 +10,11 @@ import zipfile
 def download_file(url, file_name):
     print("Downloading file from URL: " + url)
     # Open the url
+    if url.lower().startswith('http'):
+        req = urllib.Request.request(url)
+    else:
+        raise ValueError from None
+
     with urllib.request.urlopen(url) as response:
         # Read the response
         data = response.read()
