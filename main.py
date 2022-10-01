@@ -1,4 +1,3 @@
-from datetime import datetime
 import urllib.request
 import gzip
 import os
