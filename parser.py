@@ -51,19 +51,18 @@ print('imdb : ', len(resImdb), '\t filmsTv : ', len(res), ' final : ', len(match
 
 
 resFinal = []
-for i in range(len(matchingTitle)):
-    title = matchingTitle[i]
-    for j in range(len(resImdb)):
-        if(matchingTitle[i] == resImdb[j][0]):
-            year = resImdb[j][2]
-            avgVoteImdb = resImdb[j][1]
-            duration = resImdb[j][3]
-    for j in range(len(res)):
-        if(matchingTitle[i] == res[j][0]):
-            avgVoteFilmtv = res[j][2]
-            director = res[j][1]
-            publicVote = res[j][3]
-            criticsVote = res[j][4]
+for i, title in enumerate(matchingTitle):
+    for j, item in enumerate(resImdb):
+        if(matchingTitle[i] == item[0]):
+            year = item[2]
+            avgVoteImdb = item[1]
+            duration = item[3]
+    for j, item in enumerate(res):
+        if(matchingTitle[i] == item[0]):
+            avgVoteFilmtv = item[2]
+            director = item[1]
+            publicVote = item[3]
+            criticsVote = item[4]
     resFinal.append([title,year,duration,avgVoteFilmtv,director,publicVote, criticsVote])
 
 print(len(resFinal))
